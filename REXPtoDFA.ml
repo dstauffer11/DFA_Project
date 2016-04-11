@@ -1,0 +1,64 @@
+module REXPtoDFA = struct
+	open Definitions
+	open Shared
+	open Shared
+	open MinimizeDFA
+	open NFAtoDFA
+	open NFAtoDFA
+	open DifferenceDFA
+	open DifferenceDFA
+
+
+	exception NoAcceptStateInNFA
+
+
+
+	let star_NFA (states : string list) (delta : (string * char * string) list) (start_state : string) (accept_states : string list) : string nfa =
+		match accept_states with
+		| [] -> raise NoAcceptStateInNFA
+		| h::t -> let fresh_start = fresh_var states in let fresh_accept = fresh_var (fresh_start::states) in 
+			Nfa (States (fresh_start::fresh_accept::states), 
+				Delta ((fresh_start, ' ', fresh_accept)::(fresh_accept, ' ', start_state)::(fresh_start,' ',start_state)::(h,' ',fresh_accept)::delta), 
+				StartState fresh_start, AcceptStates [fresh_accept])
+
+	let concat_NFA (states1) (delta1) (start1) (accepts1) (states2) (delta2) (start2) (accepts2) : string nfa = 
+		match (accepts1,accepts2) with
+		| (h1::t1,h2::t2) -> let states_pair = fresh_states states1 states2 in let (_,states2') = List.split states_pair in 
+			let Delta delta2' = delta_fresh_vars delta2 states_pair in
+				Nfa (States (merge states1 states2'), Delta ((h1, ' ', (find_var states_pair start2))::(merge delta1 delta2')),
+				StartState start1, AcceptStates [find_var states_pair h2])
+		| (_,_) -> raise NoAcceptStateInNFA
+
+	let or_NFA (states1) (delta1) (start1) (accepts1) (states2) (delta2) (start2) (accepts2) : string nfa = 
+		match (accepts1,accepts2) with
+		| (h1::t1,h2::t2) -> let states_pair = fresh_states states1 states2 in let (_,states2') = List.split states_pair in
+			let Delta delta2' = delta_fresh_vars delta2 states_pair in let states' = (merge states1 states2') in 
+			let fresh_start = fresh_var states' in let fresh_accept = fresh_var (fresh_start::states') in
+				Nfa (States (fresh_start::fresh_accept::states'), 
+				Delta ((fresh_start,' ',start1)::(fresh_start,' ', (find_var states_pair start2))::(h1,' ',fresh_accept)::
+				((find_var states_pair h2), ' ',fresh_accept)::(merge delta1 delta2')), 
+				StartState fresh_start, AcceptStates [fresh_accept])
+		| (_,_) -> raise NoAcceptStateInNFA
+
+
+	let rec regex_to_nfa (regex : regex) : string nfa =
+		match regex with
+		| Star exp -> let Nfa (States states, Delta delta, StartState start_state, AcceptStates accept_states) = regex_to_nfa exp in
+			star_NFA states delta start_state accept_states
+		| Concat (exp1, exp2) -> let Nfa (States states1, Delta delta1, StartState start_state1, AcceptStates accept_states1) = regex_to_nfa exp1 and
+			Nfa (States states2, Delta delta2, StartState start_state2, AcceptStates accept_states2) = regex_to_nfa exp2 in
+			concat_NFA states1 delta1 start_state1 accept_states1 states2 delta2 start_state2 accept_states2
+		| Or (exp1, exp2) -> let Nfa (States states1, Delta delta1, StartState start_state1, AcceptStates accept_states1) = regex_to_nfa exp1 and
+			Nfa (States states2, Delta delta2, StartState start_state2, AcceptStates accept_states2) = regex_to_nfa exp2 in
+			or_NFA states1 delta1 start_state1 accept_states1 states2 delta2 start_state2 accept_states2
+		| Character a -> let s = fresh_var [] in let p = fresh_var [s] in Nfa (States [s;p], Delta [(s,a,p)], StartState s, AcceptStates [p])
+		| Epsilon -> let s = fresh_var [] in let p = fresh_var [s] in Nfa (States [s;p], Delta [(s,' ',p)], StartState s, AcceptStates [p])
+
+	let regex_to_dfa (regex : regex) : (string list) dfa = convert_NFA_to_DFA (regex_to_nfa regex)
+
+
+	(*let find_difference_in_dfas (regex1 : regex) (regex2 : regex) : char list = 
+		let dfa1 = regex_to_dfa regex1 and dfa2 = regex_to_dfa regex2 in find_difference_in_dfas dfa1 dfa2*)
+
+
+end
