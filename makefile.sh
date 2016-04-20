@@ -6,3 +6,7 @@ ocamlc shared.cmo NFAtoDFA.ml
 ocamlc shared.cmo minimizeDFA.ml
 ocamlc shared.cmo minimizeDFA.cmo DifferenceDFA.ml
 ocamlc shared.cmo minimizeDFA.cmo DifferenceDFA.cmo NFAtoDFA.cmo REXPtoDFA.ml
+
+
+ocamlfind ocamlc -package oUnit -linkpkg -o unitTesting shared.cmo minimizeDFA.cmo DifferenceDFA.cmo unitTesting.ml
+./unitTesting

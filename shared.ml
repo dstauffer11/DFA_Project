@@ -55,7 +55,7 @@ module Shared = struct
 	let union (lst1 : 'a list) (lst2 : 'a list) : 'a list = 
 		List.fold_left (fun acc el1 -> if List.fold_left (fun found el2 -> if compare el1 el2 == 0 then true else found) false lst2 then acc else el1::acc) lst2 lst1
 
-	let rec closure (states : 'a list) (delta : ('a * char * 'a) list) : ('a list) = print_string (string_of_int (List.length states)); let states' = List.fold_left (fun acc state -> List.fold_left (fun acc2 delt -> let (p,s,q) = delt in 
+	let rec closure (states : 'a list) (delta : ('a * char * 'a) list) : ('a list) = let states' = List.fold_left (fun acc state -> List.fold_left (fun acc2 delt -> let (p,s,q) = delt in 
 			if (compare p state) == 0 && (compare s ' ') == 0 then q::acc2 else acc2) acc delta) states states in let states'' = remove_dups states' in
 		if (List.length states) == (List.length states'') then states'' else closure states'' delta
 	

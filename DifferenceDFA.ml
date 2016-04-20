@@ -14,13 +14,13 @@ module DifferenceDFA = struct
 		build_dfa states delta s (cept states accepts)
 
 	let delta_use (delta : ('a * char * 'a) list) (state : 'a) (a : char) : 'a = 
-		let resulting_state = List.fold_left (fun acc (p,s,q) -> if compare p state == 0 then Some q else acc) None delta in
+		let resulting_state = List.fold_left (fun acc (p,s,q) -> if compare p state == 0 && compare s a == 0 then Some q else acc) None delta in
 		match resulting_state with 
 		| Some x -> x
 		| None -> raise NoResultingState
 
 	let visit_state (states_tracker : ('a * bool) list) (state : 'a) : ('a * bool) list = 
-		List.fold_left (fun acc (state',visited) -> if compare state state' == 0 then (state',visited)::acc else (state',true)::acc) [] states_tracker
+		List.fold_left (fun acc (state',visited) -> if compare state state' == 0 then (state',true)::acc else (state',visited)::acc) [] states_tracker
 
 
 	let rec difference_helper (delta1 : ('a * char * 'a) list) (delta2 : ('a * char * 'a) list) (q1 : 'a) (q2 : 'a) 
@@ -36,9 +36,8 @@ module DifferenceDFA = struct
 
 	let find_difference_in_dfas (dfa1 : 'a dfa) (dfa2 : 'a dfa) : char list =
 		if MinimizeDFA.equivalence_test_dfa dfa1 dfa2 then raise DFAs_Equivalent
-		else let dfa2 = invert_dfa dfa2 in
-			let Dfa (States states1, Delta delta1, StartState s1, AcceptStates accepts1) = dfa1 and
-			Dfa (States states2, Delta delta2, StartState s2, AcceptStates accepts2) = dfa2 in
+		else let 	Dfa (States states1, Delta delta1, StartState s1, AcceptStates accepts1) = dfa1 and
+					Dfa (States states2, Delta delta2, StartState s2, AcceptStates accepts2) = dfa2 in
 			let states1_tracker = List.map (fun s -> (s,false)) states1 and states2_tracker = List.map (fun s -> (s,false)) states2 in
 			let (found,char_list,states1_tracker,states2_tracker) = difference_helper delta1 delta2 s1 s2 accepts1 accepts2 states1_tracker states2_tracker [] in
 			if not found then char_list else raise NoDifferenceFound

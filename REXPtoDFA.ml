@@ -16,10 +16,10 @@ module REXPtoDFA = struct
 	let star_NFA (states : string list) (delta : (string * char * string) list) (start_state : string) (accept_states : string list) : string nfa =
 		match accept_states with
 		| [] -> raise NoAcceptStateInNFA
-		| h::t -> let fresh_start = fresh_var states in let fresh_accept = fresh_var (fresh_start::states) in 
-			Nfa (States (fresh_start::fresh_accept::states), 
-				Delta ((fresh_start, ' ', fresh_accept)::(fresh_accept, ' ', start_state)::(fresh_start,' ',start_state)::(h,' ',fresh_accept)::delta), 
-				StartState fresh_start, AcceptStates [fresh_accept])
+		| h::t -> let fresh_start = fresh_var states in
+			Nfa (States (fresh_start::states), 
+				Delta ((fresh_start, ' ', h)::(fresh_start,' ',start_state)::(h,' ',fresh_start)::delta), 
+				StartState fresh_start, AcceptStates [h])
 
 	let concat_NFA (states1) (delta1) (start1) (accepts1) (states2) (delta2) (start2) (accepts2) : string nfa = 
 		match (accepts1,accepts2) with
@@ -52,7 +52,7 @@ module REXPtoDFA = struct
 			Nfa (States states2, Delta delta2, StartState start_state2, AcceptStates accept_states2) = regex_to_nfa exp2 in
 			or_NFA states1 delta1 start_state1 accept_states1 states2 delta2 start_state2 accept_states2
 		| Character a -> let s = fresh_var [] in let p = fresh_var [s] in Nfa (States [s;p], Delta [(s,a,p)], StartState s, AcceptStates [p])
-		| Epsilon -> let s = fresh_var [] in let p = fresh_var [s] in Nfa (States [s;p], Delta [(s,' ',p)], StartState s, AcceptStates [p])
+		| Epsilon -> let s = fresh_var [] in Nfa (States [s], Delta [], StartState s, AcceptStates [s])
 
 	let regex_to_dfa (regex : regex) : (string list) dfa = convert_NFA_to_DFA (regex_to_nfa regex)
 
