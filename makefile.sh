@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ocamlc definitions.ml
-ocamlc shared.ml
+ocamlc definitions.cmo shared.ml
 ocamlc shared.cmo NFAtoDFA.ml
 ocamlc shared.cmo minimizeDFA.ml
 ocamlc shared.cmo minimizeDFA.cmo DifferenceDFA.ml
