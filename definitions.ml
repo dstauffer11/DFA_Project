@@ -7,7 +7,7 @@ type 'a nfa = Nfa of ('a states) * ('a delta) * ('a start_state) * ('a accept_st
 
 (* regular expression definition *)
 type regex = 
-	|Star of regex
+	| Star of regex
 	| Or of regex * regex
 	| Concat of regex * regex
 	| Epsilon

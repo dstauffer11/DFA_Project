@@ -6,7 +6,6 @@ module REXPtoDFA = struct
 	open Shared
 	open MinimizeDFA
 	open NFAtoDFA
-	open NFAtoDFA
 	open DifferenceDFA
 	open DifferenceDFA
 
@@ -56,7 +55,7 @@ module REXPtoDFA = struct
 		| Epsilon -> let s = fresh_var [] in NFA.build_nfa [s] [] s [s] Shared.comparator_of_compare
 
 	(* convert regular expression to DFA *)
-	let regex_to_dfa (regex : regex) : (string list) DFA.dfa = convert_NFA_to_DFA (regex_to_nfa regex)
+	let regex_to_dfa (regex : regex) : (string list) DFA.dfa = NFAtoDFA.convert_NFA_to_DFA (regex_to_nfa regex)
 
 
 

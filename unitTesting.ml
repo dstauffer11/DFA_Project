@@ -5,6 +5,7 @@ open Shared
 open NFAtoDFA
 open MinimizeDFA
 open DifferenceDFA
+open REXPtoDFA
 open OUnit
 
 (* Shared module testing *)
@@ -51,6 +52,10 @@ let dfa_equality : 'a DFA.dfa -> 'a DFA.dfa -> bool = (fun dfa1 dfa2 -> let (sta
 	if (lists_equal states1 states2 c1) && (delta_equality delta1 delta2 c1) && (c1 s1 s2) 
 		&& (lists_equal accept_states1 accept_states2 c1) then true else false)
 
+
+
+
+
 (* Test the NFAtoDFA module *)
 let test_nfa : int NFA.nfa = NFA.build_nfa [1;2] [(1,'a',1);(1,'b',2);(2,'b',1)] 1 [1] comparator_of_compare
 let test_nfa2 : int NFA.nfa = NFA.build_nfa [1;2;3] [(1,' ',3);(1,'a',3);(3,'b',1);(3,'b',3)] 1 [3] comparator_of_compare
@@ -59,7 +64,11 @@ let test_nfa_to_dfa : int list DFA.dfa = DFA.build_dfa [[1];[2];[]] [([1],'a',[1
 let test_nfa2_to_dfa : int list DFA.dfa = DFA.build_dfa [[1;3];[3];[]] [([1;3],'a',[3]);([1;3],'b',[1;3]);([3],'a',[]);([3],'b',[1;3]);([],'a',[]);([],'b',[])] 
 	[1;3] [[1;3];[3]] (fun x y -> lists_equal x y comparator_of_compare)
 let test_convert_NFA_to_DFA = assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa) test_nfa_to_dfa;
-	assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa2_to_dfa
+	assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa2_to_dfa;
+	assert_equal (dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa_to_dfa) false
+
+
+
 
 
 (* Test MinimizeDFA module *)
@@ -149,17 +158,24 @@ let test_visit_state = assert_equal (DifferenceDFA.visit_state states_tracker_li
 
 let test_find_difference_in_dfas = assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_dfa2) [];
 	assert_equal (DifferenceDFA.find_difference_in_dfas test_dfa2 test_create_delta_dfa) [];
-	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa)
-	(*THIS has a bug!!!: assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a']*)
+	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa);
+	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a']
 
 
 
 
 (* Test the REXPtoDFA Module *)
+let test_regex1 : regex = Star (Concat (Character 'a',Character 'b'))
+let test_regex2 : regex = Or (Epsilon,Star (Character 'b'))
+let test_regex1_to_nfa : string NFA.nfa = 
+	NFA.build_nfa ["a";"b";"c";"d";"e"] [("e",' ',"d");("e",' ',"a");("a",'a',"b");("b",' ',"c");("c",'b',"d");("d",' ',"e")] "e" ["d"] comparator_of_compare
+let test_regex1_to_dfa : string list DFA.dfa = NFAtoDFA.convert_NFA_to_DFA (test_regex1_to_nfa)
+let test_regex2_to_dfa : string list DFA.dfa =
+	(DFA.build_dfa [["b"; "f"; "c"; "d"]; []; ["b"; "a"; "f"; "c"; "d"; "e"]] [([], 'b', []); (["b"; "f"; "c"; "d"], 'b', ["b"; "f"; "c"; "d"]);
+  		([], 'a', []); (["b"; "f"; "c"; "d"], 'a', []);(["b"; "a"; "f"; "c"; "d"; "e"], 'b', ["b"; "f"; "c"; "d"]);(["b"; "a"; "f"; "c"; "d"; "e"], 'a', [])]
+ 		["b"; "a"; "f"; "c"; "d"; "e"] [["b"; "a"; "f"; "c"; "d"; "e"]; ["b"; "f"; "c"; "d"]] (fun x y -> Shared.lists_equal x y comparator_of_compare))
 
-
-
-
-
+let test_regex_to_nfa = assert_equal ~cmp:dfa_equality (REXPtoDFA.regex_to_dfa test_regex1) test_regex1_to_dfa;
+	assert_equal ~cmp:dfa_equality (REXPtoDFA.regex_to_dfa test_regex2) test_regex2_to_dfa
 
 
