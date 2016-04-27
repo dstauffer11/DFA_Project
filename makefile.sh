@@ -2,11 +2,11 @@
 
 ocamlc definitions.ml
 ocamlc definitions.cmo shared.ml
-ocamlc shared.cmo NFAtoDFA.ml
-ocamlc shared.cmo minimizeDFA.ml
-ocamlc shared.cmo minimizeDFA.cmo DifferenceDFA.ml
-ocamlc shared.cmo minimizeDFA.cmo DifferenceDFA.cmo NFAtoDFA.cmo REXPtoDFA.ml
+ocamlc definitions.cmo shared.cmo NFAtoDFA.ml
+ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.ml
+ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo DifferenceDFA.ml
+ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo differencedfa.cmo REXPtoDFA.ml
 
 
-ocamlfind ocamlc -package oUnit -linkpkg -o unitTesting shared.cmo minimizeDFA.cmo DifferenceDFA.cmo unitTesting.ml
+ocamlfind ocamlc -package oUnit -linkpkg -o unitTesting definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo DifferenceDFA.cmo REXPtoDFA.cmo unitTesting.ml
 ./unitTesting

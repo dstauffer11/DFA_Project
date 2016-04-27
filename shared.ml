@@ -1,3 +1,4 @@
+
 module type LexStream = sig
   type t
   val make : unit -> t
@@ -68,7 +69,7 @@ module Shared = struct
 	let goto (states : 'a list) (delta : ('a * char * 'a) list) (input : char) (comparator : 'a -> 'a -> bool) : ('a list) = 
 		let new_states = List.fold_left (fun acc state -> 
 			List.fold_left (fun acc2 delt -> let (p,s,q) = delt in 
-				if (comparator p state) && (comparator s input) then q::acc2 else acc2) acc delta) [] states in let dups_list = (closure new_states delta comparator) in 
+				if (comparator p state) && (compare s input == 0) then q::acc2 else acc2) acc delta) [] states in let dups_list = (closure new_states delta comparator) in 
 					remove_dups dups_list comparator
 
 	let flatten_once (lst : 'a list list) : 'a list = List.fold_left (fun acc el -> el@acc) [] lst
