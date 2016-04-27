@@ -135,7 +135,7 @@ let equivalence_test_dfa (dfa1 : 'a DFA.dfa) (dfa2 : 'a DFA.dfa) : bool =
 	minimal_dfa_equivalence min_dfa1 min_dfa2 comparator
 
 (* requires the two dfa to share the same state comparison function *)
-let equalence_test_nfa (nfa1 : 'a NFA.nfa) (nfa2 : 'a NFA.nfa) : bool = 
+let equivalence_test_nfa (nfa1 : 'a NFA.nfa) (nfa2 : 'a NFA.nfa) : bool = 
 	let (_,_,_,_,comparator) = NFA.deconstruct_nfa nfa1 in
 	let dfa1 = NFAtoDFA.convert_NFA_to_DFA nfa1 and dfa2 = NFAtoDFA.convert_NFA_to_DFA nfa2 in
 	let min_dfa1 = minimize dfa1 and min_dfa2 = minimize dfa2 in

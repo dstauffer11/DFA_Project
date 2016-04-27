@@ -28,7 +28,7 @@ end
 module Shared = struct
 	open Definitions
 
-	(* Currently, the only alphabet any DFA can use *)
+	(* Currently, the only alphabet any DFA can use in the DifferenceDFA module *)
 	let alphabet = ['a';'b']
 
 

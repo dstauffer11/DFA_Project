@@ -156,10 +156,16 @@ let states_tracker_list = [("p",false);("q",true);("r",false)]
 let test_visit_state = assert_equal (DifferenceDFA.visit_state states_tracker_list "q" comparator_of_compare) (List.rev states_tracker_list);
 	assert_equal (DifferenceDFA.visit_state states_tracker_list "r" comparator_of_compare) [("r",true);("q",true);("p",false)]
 
+
+let test_long_dfa1 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] 
+	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;5;6] comparator_of_compare
+let test_long_dfa2 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] 
+	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;6] comparator_of_compare
 let test_find_difference_in_dfas = assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_dfa2) [];
 	assert_equal (DifferenceDFA.find_difference_in_dfas test_dfa2 test_create_delta_dfa) [];
 	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa);
-	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a']
+	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a'];
+	assert_equal (DifferenceDFA.find_difference_in_dfas test_long_dfa1 test_long_dfa2) ['a';'a';'b';'a']
 
 
 
