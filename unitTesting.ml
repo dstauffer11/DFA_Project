@@ -40,14 +40,7 @@ let test_goto_closure = assert_equal (goto ["p"] delta 'a' comparator_of_compare
 
 let test_flatten_once = assert_equal (flatten_once [["a"];["b"];["c"]]) ["c";"b";"a"]
 
-
-(* Test the NFAtoDFA module *)
-
-
-(* Test MinimizeDFA module *)
-let test_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] delta2 "p" ["p"] comparator_of_compare
-let test_dfa : string DFA.dfa = DFA.build_dfa ["p"] delta "p" [] comparator_of_compare
-let reachable_states2 : string list = MinimizeDFA.find_reachable_states test_dfa2 ["p"]
+(* Functions to test the structural equality of two dfas *)
 let delta_equality = (fun delta1 delta2 comparator -> 
 	(List.fold_left (fun acc1 (p1,s1,q1) -> if (List.fold_left (fun acc2 (p2,s2,q2) -> 
 		if (comparator p1 p2) && (comparator_of_compare s1 s2) && (comparator q1 q2) then true else acc2) false delta2) then acc1 else false) true delta1) 
@@ -57,6 +50,22 @@ let dfa_equality : 'a DFA.dfa -> 'a DFA.dfa -> bool = (fun dfa1 dfa2 -> let (sta
 	and (states2,delta2,s2,accept_states2,c2) = DFA.deconstruct_dfa dfa2 in 
 	if (lists_equal states1 states2 c1) && (delta_equality delta1 delta2 c1) && (c1 s1 s2) 
 		&& (lists_equal accept_states1 accept_states2 c1) then true else false)
+
+(* Test the NFAtoDFA module *)
+let test_nfa : int NFA.nfa = NFA.build_nfa [1;2] [(1,'a',1);(1,'b',2);(2,'b',1)] 1 [1] comparator_of_compare
+let test_nfa2 : int NFA.nfa = NFA.build_nfa [1;2;3] [(1,' ',3);(1,'a',3);(3,'b',1);(3,'b',3)] 1 [3] comparator_of_compare
+let test_nfa_to_dfa : int list DFA.dfa = DFA.build_dfa [[1];[2];[]] [([1],'a',[1]);([1],'b',[2]);([2],'a',[]);([2],'b',[1]);([],'a',[]);([],'b',[])] 
+	[1] [[1]] (fun x y -> lists_equal x y comparator_of_compare)
+let test_nfa2_to_dfa : int list DFA.dfa = DFA.build_dfa [[1;3];[3];[]] [([1;3],'a',[3]);([1;3],'b',[1;3]);([3],'a',[]);([3],'b',[1;3]);([],'a',[]);([],'b',[])] 
+	[1;3] [[1;3];[3]] (fun x y -> lists_equal x y comparator_of_compare)
+let test_convert_NFA_to_DFA = assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa) test_nfa_to_dfa;
+	assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa2_to_dfa
+
+
+(* Test MinimizeDFA module *)
+let test_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] delta2 "p" ["p"] comparator_of_compare
+let test_dfa : string DFA.dfa = DFA.build_dfa ["p"] delta "p" [] comparator_of_compare
+let reachable_states2 : string list = MinimizeDFA.find_reachable_states test_dfa2 ["p"]
 let test_find_reachable_states = assert_equal reachable_states2 ["r";"q";"p"];
 	assert_equal (MinimizeDFA.find_reachable_states test_dfa ["p"]) ["q";"r";"p"]
 
