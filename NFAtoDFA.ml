@@ -1,3 +1,5 @@
+(* Module to create a convert a NFA to a DFA *)
+
 module NFAtoDFA = struct
 
 	open Definitions

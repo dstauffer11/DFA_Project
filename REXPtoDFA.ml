@@ -1,3 +1,5 @@
+(* convert regular expressions to NFAs and DFAs *)
+
 module REXPtoDFA = struct
 	open Definitions
 	open Shared
@@ -39,7 +41,7 @@ module REXPtoDFA = struct
 				fresh_start [fresh_accept] Shared.comparator_of_compare
 		| (_,_) -> raise NoAcceptStateInNFA
 
-
+	(* conert regular epxression to NFA *)
 	let rec regex_to_nfa (regex : regex) : string NFA.nfa =
 		match regex with
 		| Star exp -> let (states, delta, start_state, accept_states, comparator) = NFA.deconstruct_nfa (regex_to_nfa exp) in
@@ -53,11 +55,9 @@ module REXPtoDFA = struct
 		| Character a -> let s = fresh_var [] in let p = fresh_var [s] in NFA.build_nfa [s;p] [(s,a,p)] s [p] Shared.comparator_of_compare
 		| Epsilon -> let s = fresh_var [] in NFA.build_nfa [s] [] s [s] Shared.comparator_of_compare
 
+	(* convert regular expression to DFA *)
 	let regex_to_dfa (regex : regex) : (string list) DFA.dfa = convert_NFA_to_DFA (regex_to_nfa regex)
 
-
-	(*let find_difference_in_dfas (regex1 : regex) (regex2 : regex) : char list = 
-		let dfa1 = regex_to_dfa regex1 and dfa2 = regex_to_dfa regex2 in find_difference_in_dfas dfa1 dfa2*)
 
 
 end

@@ -7,6 +7,7 @@ open MinimizeDFA
 open DifferenceDFA
 open OUnit
 
+(* Shared module testing *)
 let test = assert_equal alphabet ['a';'b'];
 			assert_equal (contains 'a' alphabet comparator_of_compare) true;
 			assert_equal (contains 'c' alphabet comparator_of_compare) false
@@ -40,6 +41,10 @@ let test_goto_closure = assert_equal (goto ["p"] delta 'a' comparator_of_compare
 let test_flatten_once = assert_equal (flatten_once [["a"];["b"];["c"]]) ["c";"b";"a"]
 
 
+(* Test the NFAtoDFA module *)
+
+
+(* Test MinimizeDFA module *)
 let test_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] delta2 "p" ["p"] comparator_of_compare
 let test_dfa : string DFA.dfa = DFA.build_dfa ["p"] delta "p" [] comparator_of_compare
 let reachable_states2 : string list = MinimizeDFA.find_reachable_states test_dfa2 ["p"]
@@ -67,6 +72,8 @@ let test_cept = assert_equal (cept ["1";"2";"3"] [] comparator_of_compare) ["3";
 	assert_equal (cept ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["1"];
 	assert_equal (cept ["4"] ["1";"2";"3"] comparator_of_compare) ["4"]
 
+
+(* more Shared module testing *)
 let test_intersect = assert_equal (intersect ["1";"2";"3"] [] comparator_of_compare) [];
 	assert_equal (intersect ["1";"2";"3"] ["1";"2";"3"] comparator_of_compare) ["3";"2";"1"];
 	assert_equal (intersect ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["3";"2"];
@@ -76,8 +83,6 @@ let test_generate_transition_to_states = assert_equal (MinimizeDFA.generate_tran
 	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["q";"r"] comparator_of_compare) ["p";"q"];
 	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["p"] comparator_of_compare) [];
 	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["p";"q";"r"] comparator_of_compare) ["p";"q"]
-
-(* Test set_of and delta_goto*)
 
 
 let lstlst1 = [["a";"b";"c"];["a"];["b";"c"]]
@@ -95,6 +100,7 @@ let test_set_in = assert_equal (set_in lstlst1 lst1 comparator_of_compare) true;
 	assert_equal (set_in lstlst1 lst2 comparator_of_compare) true
 
 
+(* Test the MinimizeDFA module further *)
 let x = ["1";"2"]
 let y = ["2";"3"]
 let w = [["1";"4"];["2";"3"]]
@@ -105,11 +111,12 @@ let test_manipulate_w = assert_equal (MinimizeDFA.manipulate_w x y p w comparato
 
 let p = [["p"];["q";"r"]]
 let w = [["p"];["q";"r"]]
-let test_create_delta_dfa = DFA.build_dfa ["p";"q";"r"] [("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")] "p" ["q";"r"] 
+let test_create_delta_dfa : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] [("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")] "p" ["q";"r"] 
+	comparator_of_compare
+let test_create_delta_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] [("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")] "p" ["r"]
 	comparator_of_compare
 let test_create_delta = assert_equal (MinimizeDFA.create_delta test_create_delta_dfa p) [(["q"; "r"], 'b', ["q"; "r"]); (["q"; "r"], 'a', ["q"; "r"]);
  (["p"], 'b', ["q"; "r"]); (["p"], 'a', ["q"; "r"])]
-
 let test_build_dfa = assert_equal ~cmp:dfa_equality (MinimizeDFA.build_dfa_of_dfa test_create_delta_dfa p) (DFA.build_dfa [["p"];["q";"r"]]
 	(MinimizeDFA.create_delta test_create_delta_dfa p) ["p"] [["q";"r"]] comparator_of_compare)
 
@@ -130,6 +137,18 @@ let test_delta_use = assert_equal (DifferenceDFA.delta_use test_delta_list "p" '
 let states_tracker_list = [("p",false);("q",true);("r",false)]
 let test_visit_state = assert_equal (DifferenceDFA.visit_state states_tracker_list "q" comparator_of_compare) (List.rev states_tracker_list);
 	assert_equal (DifferenceDFA.visit_state states_tracker_list "r" comparator_of_compare) [("r",true);("q",true);("p",false)]
+
+let test_find_difference_in_dfas = assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_dfa2) [];
+	assert_equal (DifferenceDFA.find_difference_in_dfas test_dfa2 test_create_delta_dfa) [];
+	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa)
+	(*THIS has a bug!!!: assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a']*)
+
+
+
+
+(* Test the REXPtoDFA Module *)
+
+
 
 
 

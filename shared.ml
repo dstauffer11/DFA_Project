@@ -1,4 +1,4 @@
-
+(* generate new strings to use as node labels for DFAs/NFAs *)
 module type LexStream = sig
   type t
   val make : unit -> t
@@ -24,14 +24,13 @@ module LexStream : LexStream = struct
 end
 
 
-
+(* funcitons shared across the different modules *)
 module Shared = struct
 	open Definitions
 
+	(* Currently, the only alphabet any DFA can use *)
 	let alphabet = ['a';'b']
 
-	(*let build_dfa (states : 'a list) (delta : ('a * char * 'a) list) (start_state : 'a) (accept_states : 'a list) : 'a dfa = 
-		Dfa (States states, Delta delta, StartState start_state, AcceptStates accept_states)*)
 
 
 	let comparator_of_compare (x : 'a) (y : 'a) : bool = if compare x y == 0 then true else false
@@ -102,13 +101,5 @@ module Shared = struct
 	let find_var (lst_pair : (string * string) list) (var : string) : string = 
 		List.fold_left (fun acc (el,el') -> if compare el var == 0 then el' else acc) "" lst_pair
 
-
-
-	let test_dfa : string DFA.dfa = DFA.build_dfa ["s";"p"] [("s",'a',"s");("s",'b',"p");("p",'a',"s");("p",'b',"s")] "s" ["s";"p"] comparator_of_compare
-	let test2_dfa : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] [("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")] "p" 
-		["q";"r"] comparator_of_compare
-
-	let test_nfa : string NFA.nfa = NFA.build_nfa ["s";"p";"r"] [("s",'a',"r");("s",'b',"p");("s",'a',"s");("p",'b',"r");("r",'a',"s");("r",'b',"p")] "s" 
-		["s";"p"] comparator_of_compare
 
 end

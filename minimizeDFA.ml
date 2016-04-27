@@ -1,3 +1,5 @@
+(* Module to create a minimial DFA from a DFA *)
+
 module MinimizeDFA = struct
 
 open Definitions

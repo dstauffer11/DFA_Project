@@ -5,6 +5,7 @@ type 'a accept_states = AcceptStates of 'a list
 type 'a dfa = Dfa of ('a states) * ('a delta) * ('a start_state) * ('a accept_states)
 type 'a nfa = Nfa of ('a states) * ('a delta) * ('a start_state) * ('a accept_states)*)
 
+(* regular expression definition *)
 type regex = 
 	|Star of regex
 	| Or of regex * regex
@@ -12,9 +13,7 @@ type regex =
 	| Epsilon
 	| Character of char
 
-(*  = {mutable states : ('a list); mutable delta : (('a * char * 'a) list); mutable start_state : 'a; mutable accept_states : ('a list);
-		mutable comparator : 'a -> 'a -> bool} *)
-
+(* DFA and NFA modules *)
 module type DFA = sig
 	type 'a dfa
 	val create : unit -> unit dfa

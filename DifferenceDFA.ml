@@ -1,3 +1,5 @@
+(* Module to create find the difference between two DFAs or declare them identical *)
+
 module DifferenceDFA = struct
 	open MinimizeDFA
 	open Definitions
