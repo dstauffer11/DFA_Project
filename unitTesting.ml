@@ -201,7 +201,6 @@ let fake_test_equivalence_test_nfa = assert_equal (MinimizeDFA.equivalence_test_
 let test_invert_dfa = assert_equal ~cmp:dfa_equality (DifferenceDFA.invert_dfa test_create_delta_dfa) (DFA.build_dfa ["p";"q";"r"]
 	[("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")] "p" ["p"] comparator_of_compare)
 
-
 let test_delta_list = [("p",'a',"q");("p",'b',"r");("r",'a',"q");("r",'b',"r");("q",'a',"r");("q",'b',"q")]
 let test_delta_use = assert_equal (DifferenceDFA.delta_use test_delta_list "p" 'a' comparator_of_compare) "q"
 
@@ -209,11 +208,6 @@ let states_tracker_list = [("p",false);("q",true);("r",false)]
 let test_visit_state = assert_equal (DifferenceDFA.visit_state states_tracker_list "q" comparator_of_compare) (List.rev states_tracker_list);
 	assert_equal (DifferenceDFA.visit_state states_tracker_list "r" comparator_of_compare) [("r",true);("q",true);("p",false)]
 
-
-(*let test_long_dfa1 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] 
-	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;5;6] comparator_of_compare
-let test_long_dfa2 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] 
-	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;6] comparator_of_compare*)
 let test_find_difference_in_dfas =
 	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa);
 	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a'];
