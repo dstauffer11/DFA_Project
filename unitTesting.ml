@@ -72,7 +72,7 @@ let test_convert_NFA_to_DFA = assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_N
 	assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa2_to_dfa;
 	assert_equal (dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa_to_dfa) false
 
-
+(* More testing of the Shared module functions *)
 let test_intersect = assert_equal (intersect ["1";"2";"3"] [] comparator_of_compare) [];
 	assert_equal (intersect ["1";"2";"3"] ["1";"2";"3"] comparator_of_compare) ["3";"2";"1"];
 	assert_equal (intersect ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["3";"2"];

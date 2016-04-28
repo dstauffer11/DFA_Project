@@ -10,7 +10,7 @@ module DifferenceDFA = struct
 	exception NoResultingState
 
 
-	(* create a new dfa the same as the given dfa but with accept states and non-accpet states swapped *)
+	(* create a new dfa the same as the given dfa but with accept states and non-accept states swapped *)
 	let invert_dfa (dfa : 'a DFA.dfa) : 'a DFA.dfa = let (states, delta, s, accepts, comparator) = DFA.deconstruct_dfa dfa in
 		DFA.build_dfa states delta s (cept states accepts comparator) comparator
 
@@ -25,10 +25,13 @@ module DifferenceDFA = struct
 	let visit_state (states_tracker : ('a * bool) list) (state : 'a) (comparator : 'a -> 'a -> bool) : ('a * bool) list = 
 		List.fold_left (fun acc (state',visited) -> if comparator state state' then (state',true)::acc else (state',visited)::acc) [] states_tracker
 
+	(* check if a state has been visited *)
 	let state_visited (states_tracker : ('a * bool) list) (state : 'a) (comparator : 'a -> 'a -> bool) : bool = 
 		List.fold_left (fun acc (state',visited) -> if comparator state state' then visited else acc) false states_tracker
 
-	(* helper method for difference_helper *)
+	(* helper method for difference_helper 
+	* preconditions: states1_tracker and states2_tracker have true values on any states that have already been visited by the difference_helper search
+	* char_list is a list of characters used to transition to the current states in the two dfas *)
 	let rec difference_helper (delta1 : ('a * char * 'a) list) (delta2 : ('a * char * 'a) list) (q1 : 'a) (q2 : 'a) 
 	(accepts1 : 'a list) (accepts2 : 'a list) (states1_tracker : ('a * bool) list) (states2_tracker : ('a * bool) list) (char_list : char list)
 	(comparator1 : 'a -> 'a -> bool) (comparator2 : 'a -> 'a -> bool) : bool * (char list) * (('a * bool) list) * (('a * bool) list) = 
@@ -42,7 +45,8 @@ module DifferenceDFA = struct
 				if found' then (true, char_list', s1t', s2t') else (false,char_list,s1t',s2t'))))
 			(false,char_list,states1_tracker,states2_tracker) alphabet
 
-	(* requires that the two dfa share a comparison function *)
+	(* return a char list which form a string accepted by one dfa and not the other
+	* requires that the two dfa share a comparison function *)
 	let find_difference_in_dfas (dfa1 : 'a DFA.dfa) (dfa2 : 'a DFA.dfa) : char list =
 		if MinimizeDFA.equivalence_test_dfa dfa1 dfa2 then raise DFAs_Equivalent
 		else let (states1, delta1, s1, accepts1, comparator1) = DFA.deconstruct_dfa dfa1 and

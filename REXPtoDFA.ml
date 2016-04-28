@@ -13,7 +13,7 @@ module REXPtoDFA = struct
 	exception NoAcceptStateInNFA
 
 
-
+	(* create an NFA from the current nfa for x (given by states, delta, start_state, and accept state) and build a new nfa that represents x* *)
 	let star_NFA (states : string list) (delta : (string * char * string) list) (start_state : string) (accept_states : string list) : string NFA.nfa =
 		match accept_states with
 		| [] -> raise NoAcceptStateInNFA
@@ -21,6 +21,7 @@ module REXPtoDFA = struct
 			NFA.build_nfa (fresh_start::states) ((fresh_start, ' ', h)::(fresh_start,' ',start_state)::(h,' ',fresh_start)::delta) fresh_start [h] 
 				Shared.comparator_of_compare
 
+	(* create an NFA from two nfas for regex x and y (given by states, delta, start_state, and accept state) and build a new nfa that represents xy *)
 	let concat_NFA (states1) (delta1) (start1) (accepts1) (states2) (delta2) (start2) (accepts2) : string NFA.nfa = 
 		match (accepts1,accepts2) with
 		| (h1::t1,h2::t2) -> let states_pair = fresh_states states1 states2 in let (_,states2') = List.split states_pair in 
@@ -29,6 +30,7 @@ module REXPtoDFA = struct
 					Shared.comparator_of_compare
 		| (_,_) -> raise NoAcceptStateInNFA
 
+	(* create an NFA from two nfas for regex x and y (given by states, delta, start_state, and accept state) and build a new nfa that represents x+y *)
 	let or_NFA (states1) (delta1) (start1) (accepts1) (states2) (delta2) (start2) (accepts2) : string NFA.nfa = 
 		match (accepts1,accepts2) with
 		| (h1::t1,h2::t2) -> let states_pair = fresh_states states1 states2 in let (_,states2') = List.split states_pair in
@@ -40,7 +42,7 @@ module REXPtoDFA = struct
 				fresh_start [fresh_accept] Shared.comparator_of_compare
 		| (_,_) -> raise NoAcceptStateInNFA
 
-	(* conert regular epxression to NFA *)
+	(* convert regular epxression to NFA *)
 	let rec regex_to_nfa (regex : regex) : string NFA.nfa =
 		match regex with
 		| Star exp -> let (states, delta, start_state, accept_states, comparator) = NFA.deconstruct_nfa (regex_to_nfa exp) in

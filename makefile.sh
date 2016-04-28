@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# File to compile each file of the project with its dependencies
+
 ocamlc definitions.ml
 ocamlc definitions.cmo shared.ml
 ocamlc definitions.cmo shared.cmo NFAtoDFA.ml
