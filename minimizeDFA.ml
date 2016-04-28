@@ -28,25 +28,25 @@ let reachable_dfa (dfa : 'a DFA.dfa) (reachable_states : 'a list) : 'a DFA.dfa =
 
 
 
-let generate_transition_to_states (reachable_states : 'a list) (delta : ('a * char * 'a) list) (a : 'a list) (comparator : 'a -> 'a -> bool) : 'a list = 
-	List.fold_left (fun acc state -> List.fold_left (fun acc2 s -> 
-		if Shared.intersect (Shared.goto [state] delta s comparator) a comparator <> [] then state::acc2 else acc2) acc Shared.alphabet) [] reachable_states
+let generate_transition_to_states (reachable_states : 'a list) (delta : ('a * char * 'a) list) (a : 'a list) (input : char) (comparator : 'a -> 'a -> bool) : 'a list = 
+	List.fold_left (fun acc state ->
+		if Shared.intersect (Shared.goto [state] delta input comparator) a comparator <> [] then state::acc else acc) [] reachable_states
 
 
 
-let manipulate_w (x : 'a list) (y : 'a list) (p : 'a list list) (w : 'a list list) (comparator : 'a -> 'a -> bool) : 'a list list = 
+let manipulate_w (x : 'a list) (y : 'a list) (w : 'a list list) (comparator : 'a -> 'a -> bool) : 'a list list = 
 	if Shared.set_in w y comparator then let w' = Shared.remove_set w y comparator in (Shared.cept y x comparator)::(Shared.intersect y x comparator)::w'
 	else (if List.length (Shared.intersect y x comparator) <= List.length (Shared.cept y x comparator) then (Shared.intersect y x comparator)::w 
 		else (Shared.cept y x comparator)::w)
 
 
-let set_of (set : 'a list list) (el : 'a) (comparator : 'a -> 'a -> bool) : 'a list = 
-	List.fold_left (fun set_of_el set_el -> if Shared.contains el set_el comparator then set_el else set_of_el) [] set
+let set_of (set_list : 'a list list) (el : 'a) (comparator : 'a -> 'a -> bool) : 'a list = 
+	List.fold_left (fun set_of_el_acc set -> if Shared.contains el set comparator then set else set_of_el_acc) [] set_list
 
 let delta_goto (delta : ('a * char * 'a) list) (lst : 'a list) (a : char) (comparator : 'a -> 'a -> bool) : 'a =
 	match lst with
 	| [] -> raise NoDeltaRelationFound
-	| h::t -> let result = List.fold_left (fun acc (p,s,q) -> if comparator p h then Some q else acc) None delta in 
+	| h::t -> let result = List.fold_left (fun acc (p,s,q) -> if comparator p h && compare a s == 0 then Some q else acc) None delta in 
 		(match result with 
 		| None -> raise NoDeltaRelationFound 
 		| Some x -> x)
@@ -68,19 +68,22 @@ let build_dfa_of_dfa (dfa : 'a DFA.dfa) (p : 'a list list) : ('a list) DFA.dfa =
 	let (states, delta, start_state, accept_states, comparator) = DFA.deconstruct_dfa dfa in
 	let new_start_state = List.fold_left (fun start_state_temp partition -> if Shared.contains start_state partition comparator then partition else start_state_temp) [] p in
 	let new_delta = create_delta dfa p in
-	let new_accept_states = List.fold_left (fun acc partition -> if Shared.set_in [accept_states] partition comparator then partition::acc else acc) [] p in
-	DFA.build_dfa p new_delta new_start_state new_accept_states (fun x y -> if Shared.lists_equal x y comparator then true else false)
+	let new_accept_states = List.fold_left (fun acc partition -> if List.length (Shared.intersect accept_states partition comparator) > 0 then partition::acc else acc) [] p 
+		in DFA.build_dfa p new_delta new_start_state new_accept_states (fun x y -> if Shared.lists_equal x y comparator then true else false)
 
 let rec partition_states_helper (dfa : 'a DFA.dfa) (p : 'a list list) (w : 'a list list) (reachable_states : 'a list) : ('a list) DFA.dfa = 
 	let (states, delta, start_state, accept_states, comparator) = DFA.deconstruct_dfa dfa in
 	match w with
 	| [] -> build_dfa_of_dfa dfa p
-	| a::t -> let x = (generate_transition_to_states reachable_states delta a comparator) in let (p_new,w_new) = 
-		List.fold_left (fun (p_acc,w_acc) y -> 
-			if (List.length (Shared.cept y x comparator) > 0 && List.length (Shared.intersect y x comparator) > 0)
-				then let p_acc' = (Shared.cept y x comparator)::(Shared.intersect y x comparator)::p_acc and w_acc' = manipulate_w x y p t comparator in (p_acc',w_acc') 
-			else (y::p_acc,w_acc)) 
-		([],t) p in partition_states_helper dfa p_new w_new reachable_states
+	| a::t -> let (p_new,w_new) = (List.fold_left (fun (p,w) input -> let x = generate_transition_to_states reachable_states delta a input comparator in
+					(List.fold_left (fun (p_acc,w_acc) y -> if (List.length (Shared.cept y x comparator) > 0 && List.length (Shared.intersect y x comparator) > 0)
+						then let p_acc' = (Shared.cept y x comparator)::(Shared.intersect y x comparator)::p_acc and w_acc' = manipulate_w x y t comparator 
+							in (p_acc',w_acc')
+						else (y::p_acc,w_acc))
+					([],w) p))
+				(p,t) Shared.alphabet)
+			in partition_states_helper dfa p_new w_new reachable_states
+
 
 
 

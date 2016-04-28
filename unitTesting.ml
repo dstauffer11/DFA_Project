@@ -51,7 +51,12 @@ let dfa_equality : 'a DFA.dfa -> 'a DFA.dfa -> bool = (fun dfa1 dfa2 -> let (sta
 	and (states2,delta2,s2,accept_states2,c2) = DFA.deconstruct_dfa dfa2 in 
 	if (lists_equal states1 states2 c1) && (delta_equality delta1 delta2 c1) && (c1 s1 s2) 
 		&& (lists_equal accept_states1 accept_states2 c1) then true else false)
-
+let test_dfa : string DFA.dfa = DFA.build_dfa ["p"] delta "p" [] comparator_of_compare
+let test_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] delta2 "p" ["p"] comparator_of_compare
+let test_dfa2' : string DFA.dfa = DFA.build_dfa ["r";"q";"p"] (List.rev delta2) "p" ["p"] comparator_of_compare
+let test_dfa_equality = assert_equal (dfa_equality test_dfa test_dfa) true;
+	assert_equal (dfa_equality test_dfa2 test_dfa2) true;
+	assert_equal (dfa_equality test_dfa test_dfa2) false
 
 
 
@@ -68,39 +73,10 @@ let test_convert_NFA_to_DFA = assert_equal ~cmp:dfa_equality (NFAtoDFA.convert_N
 	assert_equal (dfa_equality (NFAtoDFA.convert_NFA_to_DFA test_nfa2) test_nfa_to_dfa) false
 
 
-
-
-
-(* Test MinimizeDFA module *)
-let test_dfa2 : string DFA.dfa = DFA.build_dfa ["p";"q";"r"] delta2 "p" ["p"] comparator_of_compare
-let test_dfa : string DFA.dfa = DFA.build_dfa ["p"] delta "p" [] comparator_of_compare
-let reachable_states2 : string list = MinimizeDFA.find_reachable_states test_dfa2 ["p"]
-let test_find_reachable_states = assert_equal reachable_states2 ["r";"q";"p"];
-	assert_equal (MinimizeDFA.find_reachable_states test_dfa ["p"]) ["q";"r";"p"]
-
-let test_dfa2' : string DFA.dfa = DFA.build_dfa ["r";"q";"p"] (List.rev delta2) "p" ["p"] comparator_of_compare
-let test_dfa_equality = assert_equal (dfa_equality test_dfa test_dfa) true;
-	assert_equal (dfa_equality test_dfa2 test_dfa2) true;
-	assert_equal (dfa_equality test_dfa test_dfa2) false
-
-let test_reachable_dfa = assert_equal ~cmp:dfa_equality (MinimizeDFA.reachable_dfa test_dfa2 reachable_states2) test_dfa2'
-
-let test_cept = assert_equal (cept ["1";"2";"3"] [] comparator_of_compare) ["3";"2";"1"];
-	assert_equal (cept ["1";"2";"3"] ["1";"2";"3"] comparator_of_compare) [];
-	assert_equal (cept ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["1"];
-	assert_equal (cept ["4"] ["1";"2";"3"] comparator_of_compare) ["4"]
-
-
-(* more Shared module testing *)
 let test_intersect = assert_equal (intersect ["1";"2";"3"] [] comparator_of_compare) [];
 	assert_equal (intersect ["1";"2";"3"] ["1";"2";"3"] comparator_of_compare) ["3";"2";"1"];
 	assert_equal (intersect ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["3";"2"];
 	assert_equal (intersect ["4"] ["1";"2";"3"] comparator_of_compare) []
-
-let test_generate_transition_to_states = assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["q"] comparator_of_compare) ["p"];
-	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["q";"r"] comparator_of_compare) ["p";"q"];
-	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["p"] comparator_of_compare) [];
-	assert_equal (MinimizeDFA.generate_transition_to_states reachable_states2 delta2 ["p";"q";"r"] comparator_of_compare) ["p";"q"]
 
 
 let lstlst1 = [["a";"b";"c"];["a"];["b";"c"]]
@@ -117,15 +93,70 @@ let test_set_in = assert_equal (set_in lstlst1 lst1 comparator_of_compare) true;
 	assert_equal (set_in lstlst1 [] comparator_of_compare) false;
 	assert_equal (set_in lstlst1 lst2 comparator_of_compare) true
 
+let test_cept = assert_equal (cept ["1";"2";"3"] [] comparator_of_compare) ["3";"2";"1"];
+	assert_equal (cept ["1";"2";"3"] ["1";"2";"3"] comparator_of_compare) [];
+	assert_equal (cept ["1";"2";"3"] ["3";"2"] comparator_of_compare) ["1"];
+	assert_equal (cept ["4"] ["1";"2";"3"] comparator_of_compare) ["4"]
 
-(* Test the MinimizeDFA module further *)
+
+
+
+
+
+
+
+(* Test the MinimizeDFA module *)
+let delta_long1 = [(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)]
+let delta_long1_list = [([1],'a',[2]);([1],'b',[4;5;6]);([2],'a',[3]);([2],'b',[2]);([3],'a',[3]);([3],'b',[4;5;6]);([4;5;6],'a',[4;5;6]);([4;5;6],'b',[4;5;6])]
+let test_long_dfa1 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] delta_long1 1 [1;2;4;5;6] comparator_of_compare
+let test_long_dfa1_minimized : int list DFA.dfa = 
+	DFA.build_dfa [[1];[2];[3];[4;5;6]] delta_long1_list [1] [[1];[2];[4;5;6]] (fun x y -> lists_equal x y comparator_of_compare)
+let delta_long2 = [(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)]
+let delta_long2_list = List.map (fun (p,s,q)->([p],s,[q])) delta_long2
+let test_long_dfa2 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] delta_long2 1 [1;2;4;6] comparator_of_compare
+let test_long_dfa2_minimized : int list DFA.dfa = 
+	DFA.build_dfa [[1];[2];[3];[4];[5];[6]] delta_long2_list [1] [[1];[2];[4];[6]] (fun x y -> lists_equal x y comparator_of_compare)
+let test_find_reachable_states =
+	assert_equal ~cmp:(fun x y -> lists_equal x y comparator_of_compare) (MinimizeDFA.find_reachable_states test_long_dfa1 [1]) [1;2;3;4;5;6];
+	assert_equal ~cmp:(fun x y -> lists_equal x y comparator_of_compare) (MinimizeDFA.find_reachable_states test_long_dfa2 [1]) [1;2;3;4;5;6]
+
+let test_reachable_dfa = assert_equal ~cmp:dfa_equality (MinimizeDFA.reachable_dfa test_long_dfa1 [1;2;3;4;5;6]) test_long_dfa1;
+	assert_equal ~cmp:dfa_equality (MinimizeDFA.reachable_dfa test_long_dfa2 [1;2;3;4;5;6]) test_long_dfa2
+
+let test_generate_transition_to_states =
+	assert_equal (MinimizeDFA.generate_transition_to_states [1;2;3;4;5;6] delta_long1 [3] 'b' comparator_of_compare) [];
+	assert_equal (MinimizeDFA.generate_transition_to_states [1;2;3;4;5;6] delta_long2 [3] 'a' comparator_of_compare) [3;2];
+	assert_equal (MinimizeDFA.generate_transition_to_states [1;2;3;4;5;6] delta_long1 [3;2] 'a' comparator_of_compare) [3;2;1];
+	assert_equal (MinimizeDFA.generate_transition_to_states [1;2;3;4;5;6] delta_long2 [3;2] 'b' comparator_of_compare) [2];
+	assert_equal (MinimizeDFA.generate_transition_to_states [1;2;3;4;5;6] delta_long2 [] 'b' comparator_of_compare) []
+
 let x = ["1";"2"]
 let y = ["2";"3"]
 let w = [["1";"4"];["2";"3"]]
 let p = [["1";"4"];["2";"3"]]
 let w' = [["1";"3"];["2";"4"]]
-let test_manipulate_w = assert_equal (MinimizeDFA.manipulate_w x y p w comparator_of_compare) [["3"];["2"];["1";"4"]];
-	assert_equal (MinimizeDFA.manipulate_w x y p w' comparator_of_compare) [["2"];["1";"3"];["2";"4"]]
+let test_manipulate_w = assert_equal (MinimizeDFA.manipulate_w x y w comparator_of_compare) [["3"];["2"];["1";"4"]];
+	assert_equal (MinimizeDFA.manipulate_w x y w' comparator_of_compare) [["2"];["1";"3"];["2";"4"]]
+
+let test_set_of = assert_equal (MinimizeDFA.set_of [["a";"b";"d"];["c"];["e"]] "e" comparator_of_compare) ["e"];
+	assert_equal (MinimizeDFA.set_of [["a";"b";"d"];["c"];["e"]] "f" comparator_of_compare) [];
+	assert_equal (MinimizeDFA.set_of [["a";"b";"d"];["c"];["e"]] "b" comparator_of_compare) ["a";"b";"d"]
+
+let test_delta_goto = assert_equal (MinimizeDFA.delta_goto delta_long1 [3] 'a' comparator_of_compare) 3;
+	assert_equal (MinimizeDFA.delta_goto delta_long2 [1] 'b' comparator_of_compare) 6;
+	assert_equal (MinimizeDFA.delta_goto delta_long2 [1;5;6] 'b' comparator_of_compare) 6;
+	assert_equal (MinimizeDFA.delta_goto delta_long1 [1] 'a' comparator_of_compare) 2
+
+let test_delta_list_goto = assert_equal (MinimizeDFA.delta_list_goto [([1;2],'a',[1;2]);([2;1],'b',[2;1])] [1;2] 'a' comparator_of_compare) [1;2];
+	assert_equal (MinimizeDFA.delta_list_goto [([1;2],'a',[1;2]);([2;1],'b',[2;1])] [1;2] 'b' comparator_of_compare) [2;1]
+
+let test_create_delta = assert_equal ~cmp:(fun x y -> lists_equal x y comparator_of_compare) 
+		(MinimizeDFA.create_delta test_long_dfa1 [[1];[2];[3];[4;5;6]]) delta_long1_list;
+	assert_equal ~cmp:(fun x y -> lists_equal x y comparator_of_compare) 
+		(MinimizeDFA.create_delta test_long_dfa2 [[1];[2];[3];[4];[5];[6]]) delta_long2_list
+
+let test_build_dfa_of_dfa = assert_equal ~cmp:dfa_equality (MinimizeDFA.build_dfa_of_dfa test_long_dfa1 [[1];[2];[3];[4;5;6]]) test_long_dfa1_minimized;
+	assert_equal ~cmp:dfa_equality (MinimizeDFA.build_dfa_of_dfa test_long_dfa2 [[1];[2];[3];[4];[5];[6]]) test_long_dfa2_minimized
 
 let p = [["p"];["q";"r"]]
 let w = [["p"];["q";"r"]]
@@ -138,7 +169,18 @@ let test_create_delta = assert_equal (MinimizeDFA.create_delta test_create_delta
 let test_build_dfa = assert_equal ~cmp:dfa_equality (MinimizeDFA.build_dfa_of_dfa test_create_delta_dfa p) (DFA.build_dfa [["p"];["q";"r"]]
 	(MinimizeDFA.create_delta test_create_delta_dfa p) ["p"] [["q";"r"]] comparator_of_compare)
 
-let test_partition_states = assert_equal (MinimizeDFA.partition_states test_create_delta_dfa ["p";"q";"r"]) 
+let test_partition_states_helper = assert_equal ~cmp:dfa_equality 
+	(MinimizeDFA.partition_states_helper test_long_dfa1 [[1];[2];[3];[4;5;6]] [] [1;2;3;4;5;6]) test_long_dfa1_minimized;
+	assert_equal ~cmp:dfa_equality (MinimizeDFA.partition_states_helper test_long_dfa2 [[1];[2];[3];[4];[5];[6]] [] [1;2;3;4;5;6]) test_long_dfa2_minimized
+
+let test_partition_state = assert_equal ~cmp:dfa_equality (MinimizeDFA.partition_states test_long_dfa1  [1;2;3;4;5;6]) test_long_dfa1_minimized;
+	assert_equal ~cmp:dfa_equality (MinimizeDFA.partition_states test_long_dfa2 [1;2;3;4;5;6]) test_long_dfa2_minimized
+
+
+
+
+
+
 
 
 
@@ -161,11 +203,10 @@ let test_long_dfa1 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6]
 	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;5;6] comparator_of_compare
 let test_long_dfa2 : int DFA.dfa = DFA.build_dfa [1;2;3;4;5;6] 
 	[(1,'a',2);(1,'b',6);(2,'a',3);(2,'b',2);(3,'a',3);(3,'b',4);(4,'a',5);(4,'b',4);(5,'a',5);(5,'b',6);(6,'a',6);(6,'b',6)] 1 [1;2;4;6] comparator_of_compare
-let test_find_difference_in_dfas = assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_dfa2) [];
-	assert_equal (DifferenceDFA.find_difference_in_dfas test_dfa2 test_create_delta_dfa) [];
+let test_find_difference_in_dfas =
 	assert_raises DifferenceDFA.DFAs_Equivalent (fun () -> DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa);
-	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a'];
-	assert_equal (DifferenceDFA.find_difference_in_dfas test_long_dfa1 test_long_dfa2) ['a';'a';'b';'a']
+	assert_equal (DifferenceDFA.find_difference_in_dfas test_create_delta_dfa test_create_delta_dfa2) ['a']
+	(*assert_equal (DifferenceDFA.find_difference_in_dfas test_long_dfa1 test_long_dfa2) ['a';'a';'b';'a']*)
 
 
 
