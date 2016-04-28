@@ -176,6 +176,17 @@ let test_partition_states_helper = assert_equal ~cmp:dfa_equality
 let test_partition_state = assert_equal ~cmp:dfa_equality (MinimizeDFA.partition_states test_long_dfa1  [1;2;3;4;5;6]) test_long_dfa1_minimized;
 	assert_equal ~cmp:dfa_equality (MinimizeDFA.partition_states test_long_dfa2 [1;2;3;4;5;6]) test_long_dfa2_minimized
 
+let test_minimize = assert_equal ~cmp:dfa_equality (MinimizeDFA.minimize test_long_dfa1) test_long_dfa1_minimized;
+	assert_equal ~cmp:dfa_equality (MinimizeDFA.minimize test_long_dfa2) test_long_dfa2_minimized
+
+let test_equivalence_test_dfa = assert_equal (MinimizeDFA.equivalence_test_dfa test_long_dfa1 test_long_dfa2) false;
+	assert_equal (MinimizeDFA.equivalence_test_dfa test_long_dfa2 test_long_dfa1) false;
+	assert_equal (MinimizeDFA.equivalence_test_dfa test_long_dfa1 test_long_dfa1) true;
+	assert_equal (MinimizeDFA.equivalence_test_dfa test_long_dfa2 test_long_dfa2) true
+
+let test_long_nfa1 = let (a,b,c,d,e) = (DFA.deconstruct_dfa test_long_dfa1) in NFA.build_nfa a b c d e
+let test_long_nfa2 = let (a,b,c,d,e) = (DFA.deconstruct_dfa test_long_dfa2) in NFA.build_nfa a b c d e
+let fake_test_equivalence_test_nfa = assert_equal (MinimizeDFA.equivalence_test_nfa test_long_nfa1 test_long_nfa2) false
 
 
 
