@@ -17,31 +17,31 @@ type regex =
 module type DFA = sig
 	type 'a dfa
 	val create : unit -> unit dfa
-	val build_dfa : 'a list -> ('a * char * 'a) list -> 'a -> 'a list -> ('a -> 'a -> bool) -> 'a dfa
-	val deconstruct_dfa : 'a dfa -> (('a list)*(('a * char * 'a) list)*('a)*('a list)*('a -> 'a -> bool))
+	val build_dfa : 'a list -> char list -> ('a * char * 'a) list -> 'a -> 'a list -> ('a -> 'a -> bool) -> 'a dfa
+	val deconstruct_dfa : 'a dfa -> (('a list)*(char list)*(('a * char * 'a) list)*('a)*('a list)*('a -> 'a -> bool))
 end
 
 module DFA : DFA = struct
-	type 'a dfa = {mutable states : ('a list); mutable delta : (('a * char * 'a) list); mutable start_state : 'a; mutable accept_states : ('a list);
-						mutable compare_states : 'a -> 'a -> bool}
-	let create = fun () -> {states = []; delta = []; start_state = (); accept_states  = []; compare_states = fun q1 q2 -> false}
-	let build_dfa = fun states delta start_state accept_states comparator -> {states = states; delta = delta; start_state = start_state; 
+	type 'a dfa = {mutable states : ('a list); mutable alphabet : (char list); mutable delta : (('a * char * 'a) list); mutable start_state : 'a; 
+			mutable accept_states : ('a list); mutable compare_states : 'a -> 'a -> bool}
+	let create = fun () -> {states = []; alphabet = []; delta = []; start_state = (); accept_states  = []; compare_states = fun q1 q2 -> false}
+	let build_dfa = fun states alphabet delta start_state accept_states comparator -> {states = states; alphabet = alphabet; delta = delta; start_state = start_state; 
 		accept_states = accept_states; compare_states = comparator}
-	let deconstruct_dfa = fun dfa -> (dfa.states, dfa.delta, dfa.start_state, dfa.accept_states, dfa.compare_states)
+	let deconstruct_dfa = fun dfa -> (dfa.states, dfa.alphabet, dfa.delta, dfa.start_state, dfa.accept_states, dfa.compare_states)
 end
 
 module type NFA = sig
 	type 'a nfa
 	val create : unit -> unit nfa
-	val build_nfa : 'a list -> ('a * char * 'a) list -> 'a -> 'a list -> ('a -> 'a -> bool) -> 'a nfa
-	val deconstruct_nfa : 'a nfa -> (('a list)*(('a * char * 'a) list)*('a)*('a list)*('a -> 'a -> bool))
+	val build_nfa : 'a list -> char list -> ('a * char * 'a) list -> 'a -> 'a list -> ('a -> 'a -> bool) -> 'a nfa
+	val deconstruct_nfa : 'a nfa -> (('a list)*(char list)*(('a * char * 'a) list)*('a)*('a list)*('a -> 'a -> bool))
 end
 
 module NFA : NFA = struct
-	type 'a nfa = {mutable states : ('a list); mutable delta : (('a * char * 'a) list); mutable start_state : 'a; mutable accept_states : ('a list);
-						mutable compare_states : 'a -> 'a -> bool}
-	let create = fun () -> {states = []; delta = []; start_state = (); accept_states  = []; compare_states = fun q1 q2 -> false}
-	let build_nfa = fun states delta start_state accept_states comparator -> {states = states; delta = delta; start_state = start_state; 
+	type 'a nfa = {mutable states : ('a list); mutable alphabet : char list; mutable delta : (('a * char * 'a) list); mutable start_state : 'a; 
+			mutable accept_states : ('a list); mutable compare_states : 'a -> 'a -> bool}
+	let create = fun () -> {states = []; alphabet = []; delta = []; start_state = (); accept_states  = []; compare_states = fun q1 q2 -> false}
+	let build_nfa = fun states alphabet delta start_state accept_states comparator -> {states = states; alphabet = alphabet; delta = delta; start_state = start_state; 
 		accept_states = accept_states; compare_states = comparator}
-	let deconstruct_nfa = fun nfa -> (nfa.states, nfa.delta, nfa.start_state, nfa.accept_states, nfa.compare_states)
+	let deconstruct_nfa = fun nfa -> (nfa.states, nfa.alphabet, nfa.delta, nfa.start_state, nfa.accept_states, nfa.compare_states)
 end

@@ -28,8 +28,6 @@ end
 module Shared = struct
 	open Definitions
 
-	(* Currently, the only alphabet any DFA can use in the DifferenceDFA module *)
-	let alphabet = ['a';'b']
 
 
 	(*  change the output of compare from an int to bool *)
