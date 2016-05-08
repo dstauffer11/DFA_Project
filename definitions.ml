@@ -12,6 +12,7 @@ type regex =
 	| Concat of regex * regex
 	| Epsilon
 	| Character of char
+	| Emptyset
 
 (* DFA and NFA modules *)
 module type DFA = sig

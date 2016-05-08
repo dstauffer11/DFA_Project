@@ -11,6 +11,7 @@ module REXPtoDFA = struct
 
 
 	exception NoAcceptStateInNFA
+	exception EmptySetRegex
 
 
 	(* create an NFA from the current nfa for x (given by states, delta, start_state, and accept state) and build a new nfa that represents x* *)
@@ -56,6 +57,7 @@ module REXPtoDFA = struct
 		| Or (exp1, exp2) -> let nfa1 = regex_to_nfa exp1 and nfa2 = regex_to_nfa exp2 in or_NFA nfa1 nfa2
 		| Character a -> let s = fresh_var [] in let p = fresh_var [s] in NFA.build_nfa [s;p] [a] [(s,a,p)] s [p] Shared.comparator_of_compare
 		| Epsilon -> let s = fresh_var [] in NFA.build_nfa [s] [] [] s [s] Shared.comparator_of_compare
+		| Emptyset -> let s = fresh_var [] in NFA.build_nfa [s] [] [] s [] Shared.comparator_of_compare
 
 	(* convert regular expression to DFA *)
 	let regex_to_dfa (regex : regex) : (string list) DFA.dfa = NFAtoDFA.convert_NFA_to_DFA (regex_to_nfa regex)

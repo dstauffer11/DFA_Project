@@ -107,5 +107,9 @@ module Shared = struct
 	let find_var (lst_pair : (string * string) list) (var : string) : string = 
 		List.fold_left (fun acc (el,el') -> if compare el var == 0 then el' else acc) "" lst_pair
 
+	let parse_dfa (location : string) : 'a DFA.dfa = DFA.create ()
 
+	let parse_nfa (location : string) : 'a NFA.nfa = NFA.create ()
+
+	let parse_regex (location : string) : regex = Epsilon
 end
