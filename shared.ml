@@ -112,4 +112,29 @@ module Shared = struct
 	let parse_nfa (location : string) : 'a NFA.nfa = NFA.create ()
 
 	let parse_regex (location : string) : regex = Epsilon
+
+	let rec basic_simplify_helper (regex : regex) : (bool * regex) = 
+		match regex with
+		| Star Emptyset -> (true, Epsilon)
+		| Star Epsilon -> (true, Epsilon)
+		| Star reg -> let (simplified,reg') = basic_simplify_helper reg in if simplified then (true,Star reg') else (false,Star reg)
+		| Or (Emptyset,reg) 
+		| Or (reg,Emptyset) -> (true, snd (basic_simplify_helper reg))
+		| Concat (Emptyset,_)
+		| Concat (_,Emptyset) -> (true,Emptyset)
+		| Concat (Epsilon,reg)
+		| Concat (reg,Epsilon) -> (true,reg)
+		| Or (reg1,reg2) -> let (s1,reg1') = basic_simplify_helper reg1 in let (s2,reg2') = basic_simplify_helper reg2 in
+			if s1 || s2 then (true,Or (reg1',reg2')) else (false,regex)
+		| Concat (reg1,reg2) -> let (s1,reg1') = basic_simplify_helper reg1 in let (s2,reg2') = basic_simplify_helper reg2 in
+			if s1 || s2 then (true,Concat (reg1',reg2')) else (false,regex)
+		| Character _
+		| Epsilon
+		| Emptyset -> (false,regex)
+
+	let rec basic_simplify (regex : regex) : regex =
+		let (simplifed,regex') = basic_simplify_helper regex in
+		if simplifed then basic_simplify regex' else regex'
+
+
 end

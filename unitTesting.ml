@@ -6,6 +6,7 @@ open NFAtoDFA
 open MinimizeDFA
 open DifferenceDFA
 open REXPtoDFA
+open DFAtoREXP
 open OUnit
 
 (* Shared module testing *)
@@ -237,5 +238,28 @@ let test_regex2_to_dfa : string list DFA.dfa =
 
 let test_regex_to_nfa = assert_equal ~cmp:dfa_equality (REXPtoDFA.regex_to_dfa test_regex1) test_regex1_to_dfa;
 	assert_equal ~cmp:dfa_equality (REXPtoDFA.regex_to_dfa test_regex2) test_regex2_to_dfa
+
+
+
+(* Test the DFAtoREXP module *)
+
+let test_build_index_vector = assert_equal (DFAtoREXP.build_index_vector 5 []) [0;1;2;3;4];
+	assert_equal (DFAtoREXP.build_index_vector 0 []) [];
+	assert_equal (DFAtoREXP.build_index_vector (-1) []) []
+
+let test_transitions_finder = assert_equal (DFAtoREXP.transitions_finder complicated_dfa1 1 3) (true,Character 'b');
+	assert_equal (DFAtoREXP.transitions_finder complicated_dfa1 1 5) (false,Emptyset);
+	assert_equal (DFAtoREXP.transitions_finder test_long_dfa1 6 6) (true,Or (Character 'b',Or (Character 'a',Epsilon)))
+
+let small_dfa : int DFA.dfa = DFA.build_dfa [1;2] ['a'] [(1,'a',2);(2,'a',2)] 1 [1] Shared.comparator_of_compare
+
+let (matA,matB) = DFAtoREXP.build_matrices small_dfa
+let test_build_matrices = assert_equal matB (Array.of_list [Epsilon;Emptyset]);
+	assert_equal matA (Array.of_list [Array.of_list [Emptyset;Character 'a'];Array.of_list [Emptyset;Or (Character 'a',Epsilon)]])
+
+let solution = DFAtoREXP.solve_matrices small_dfa matA matB
+let test_solve_matrices = assert_equal (basic_simplify solution.(1)) Emptyset;
+	assert_equal (basic_simplify solution.(0)) Epsilon
+
 
 
