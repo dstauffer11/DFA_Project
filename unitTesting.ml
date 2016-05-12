@@ -228,7 +228,7 @@ let test2_find_difference_in_dfas = assert_equal (DifferenceDFA.find_difference_
 (* Test the REXPtoDFA Module *)
 let test_regex1 : regex = Star (Concat (Character 'a',Character 'b'))
 let test_regex2 : regex = Or (Epsilon,Star (Character 'b'))
-let test_regex1_to_nfa : string NFA.nfa = 
+let test_regex1_to_nfa :  string NFA.nfa = 
 	NFA.build_nfa ["a";"b";"c";"d";"e"] alphabet [("e",' ',"d");("e",' ',"a");("a",'a',"b");("b",' ',"c");("c",'b',"d");("d",' ',"e")] "e" ["d"] comparator_of_compare
 let test_regex1_to_dfa : string list DFA.dfa = NFAtoDFA.convert_NFA_to_DFA (test_regex1_to_nfa)
 let test_regex2_to_dfa : string list DFA.dfa =
@@ -260,6 +260,18 @@ let test_build_matrices = assert_equal matB (Array.of_list [Epsilon;Emptyset]);
 let solution = DFAtoREXP.solve_matrices small_dfa matA matB
 let test_solve_matrices = assert_equal (basic_simplify solution.(1)) Emptyset;
 	assert_equal (basic_simplify solution.(0)) Epsilon
+
+
+let so_dfa : int DFA.dfa = DFA.build_dfa [0;1;2] ['a';'b'] [(0,'a',1);(0,'b',2);(1,'a',2);(1,'b',0);(2,'a',0);(2,'b',1)] 0 [0] Shared.comparator_of_compare
+let so_solution = DFAtoREXP.dfa_to_regex so_dfa
+let test_dfa_to_regex = assert_equal (basic_simplify so_solution) 
+	(Star (Or
+   		(Concat (Or (Concat (Character 'b', Character 'b'), Character 'a'),
+     		Concat (Star (Concat (Character 'a', Character 'b')),
+      			Or (Concat (Character 'a', Character 'a'), Character 'b'))),
+   		Concat (Character 'b', Character 'a'))))
+
+
 
 
 
