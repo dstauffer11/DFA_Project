@@ -2,14 +2,14 @@
 
 # File to compile each file of the project with its dependencies
 
-ocamlc definitions.ml
-ocamlc definitions.cmo shared.ml
-ocamlc definitions.cmo shared.cmo NFAtoDFA.ml
-ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.ml
-ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo DifferenceDFA.ml
-ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo differenceDfa.cmo REXPtoDFA.ml
-ocamlc definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo DFAtoREXP.ml
+ocamlc util.ml
+ocamlc util.cmo definitions.ml
+ocamlc util.cmo definitions.cmo nFAtoDFA.ml
+ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.ml
+ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo differenceDFA.ml
+ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo differenceDfa.cmo rEXPtoDFA.ml
+ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo dFAtoREXP.ml
 
 
-ocamlfind ocamlc -package oUnit -linkpkg -o unitTesting definitions.cmo shared.cmo NFAtoDFA.cmo minimizeDFA.cmo DifferenceDFA.cmo REXPtoDFA.cmo DFAtoREXP.cmo unitTesting.ml
+ocamlfind ocamlc -package oUnit -linkpkg -o unitTesting util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo differenceDFA.cmo rEXPtoDFA.cmo dFAtoREXP.cmo unitTesting.ml
 ./unitTesting
