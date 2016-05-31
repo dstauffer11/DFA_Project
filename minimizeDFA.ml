@@ -145,3 +145,4 @@ let equivalence_test_nfa (nfa1 : 'a NFA.t) (nfa2 : 'a NFA.t) : bool =
 	let dfa1 = NFAtoDFA.convert_NFA_to_DFA nfa1 and dfa2 = NFAtoDFA.convert_NFA_to_DFA nfa2 in
 	let min_dfa1 = minimize dfa1 and min_dfa2 = minimize dfa2 in
 	minimal_dfa_equivalence min_dfa1 min_dfa2 (lists_equal comparator)
+

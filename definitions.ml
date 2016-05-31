@@ -91,3 +91,6 @@ let rec basic_simplify_helper (regex : regex) : (bool * regex) =
 let rec basic_simplify (regex : regex) : regex =
   let (simplifed,regex') = basic_simplify_helper regex in
   if simplifed then basic_simplify regex' else regex'
+
+
+  

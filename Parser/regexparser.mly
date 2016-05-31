@@ -23,10 +23,10 @@
 %%
 
 regex_main:
-  | CHAR regex_main               { Char $1 }
+  | CHAR 			              { Character $1 }
   | regex_main STAR               { Star $1 }
-  | regex_main CONCAT regex_main  { Concat [$1; $3] }
-  | regex_main OR regex_main      { Or [$1; $3] }
+  | regex_main CONCAT regex_main  { Concat ($1, $3) }
+  | regex_main OR regex_main      { Or ($1, $3) }
   | EPSILON                       { Epsilon }
   | EMPTYSET                      { Emptyset }
   | LPAREN regex_main RPAREN      { $2 }

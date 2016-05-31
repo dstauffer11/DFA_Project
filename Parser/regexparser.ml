@@ -34,33 +34,33 @@ let yylhs = "\255\255\
 \000\000"
 
 let yylen = "\002\000\
-\002\000\002\000\003\000\003\000\001\000\001\000\003\000\002\000\
+\001\000\002\000\003\000\003\000\001\000\001\000\003\000\002\000\
 \002\000"
 
 let yydefred = "\000\000\
-\000\000\000\000\000\000\005\000\006\000\000\000\000\000\001\000\
-\000\000\002\000\000\000\000\000\008\000\007\000\000\000\000\000"
+\000\000\000\000\001\000\005\000\006\000\000\000\000\000\000\000\
+\002\000\000\000\000\000\008\000\007\000\000\000\000\000"
 
 let yydgoto = "\002\000\
 \007\000"
 
-let yysindex = "\008\000\
-\017\255\000\000\017\255\000\000\000\000\017\255\012\255\000\000\
-\004\255\000\000\017\255\017\255\000\000\000\000\254\254\023\255"
+let yysindex = "\255\255\
+\011\255\000\000\000\000\000\000\000\000\011\255\005\255\002\255\
+\000\000\011\255\011\255\000\000\000\000\000\255\019\255"
 
 let yyrindex = "\000\000\
-\000\000\000\000\000\000\000\000\000\000\000\000\004\000\000\000\
-\000\000\000\000\000\000\000\000\000\000\000\000\001\000\003\000"
+\000\000\000\000\000\000\000\000\000\000\000\000\013\000\000\000\
+\000\000\000\000\000\000\000\000\000\000\001\000\003\000"
 
 let yygindex = "\000\000\
-\255\255"
+\009\000"
 
 let yytablesize = 268
-let yytable = "\010\000\
-\003\000\008\000\004\000\009\000\009\000\010\000\011\000\012\000\
-\001\000\015\000\016\000\014\000\013\000\010\000\011\000\012\000\
-\000\000\003\000\000\000\000\000\013\000\004\000\005\000\006\000\
-\010\000\011\000\000\000\000\000\000\000\000\000\000\000\000\000\
+let yytable = "\001\000\
+\003\000\009\000\004\000\009\000\010\000\011\000\009\000\010\000\
+\011\000\013\000\012\000\003\000\009\000\012\000\008\000\004\000\
+\005\000\006\000\014\000\015\000\009\000\010\000\000\000\000\000\
+\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
 \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
 \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
 \000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\
@@ -92,11 +92,11 @@ let yytable = "\010\000\
 \000\000\000\000\000\000\003\000\003\000\000\000\004\000\000\000\
 \003\000\003\000\004\000\004\000"
 
-let yycheck = "\002\001\
-\000\000\003\000\000\000\000\000\006\000\002\001\003\001\004\001\
-\001\000\011\000\012\000\008\001\009\001\002\001\003\001\004\001\
-\255\255\001\001\255\255\255\255\009\001\005\001\006\001\007\001\
-\002\001\003\001\255\255\255\255\255\255\255\255\255\255\255\255\
+let yycheck = "\001\000\
+\000\000\002\001\000\000\002\001\003\001\004\001\002\001\003\001\
+\004\001\008\001\009\001\001\001\000\000\009\001\006\000\005\001\
+\006\001\007\001\010\000\011\000\002\001\003\001\255\255\255\255\
+\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
 \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
 \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
 \255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\255\
@@ -146,61 +146,60 @@ let yynames_block = "\
 let yyact = [|
   (fun _ -> failwith "parser")
 ; (fun __caml_parser_env ->
-    let _1 = (Parsing.peek_val __caml_parser_env 1 : char) in
-    let _2 = (Parsing.peek_val __caml_parser_env 0 : Definitions.regex) in
+    let _1 = (Parsing.peek_val __caml_parser_env 0 : char) in
     Obj.repr(
 # 26 "regexparser.mly"
-                                  ( Char _1 )
-# 155 "regexparser.ml"
+                          ( Character _1 )
+# 154 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : Definitions.regex) in
     Obj.repr(
 # 27 "regexparser.mly"
                                   ( Star _1 )
-# 162 "regexparser.ml"
+# 161 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 2 : Definitions.regex) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : Definitions.regex) in
     Obj.repr(
 # 28 "regexparser.mly"
-                                  ( Concat [_1; _3] )
-# 170 "regexparser.ml"
+                                  ( Concat (_1, _3) )
+# 169 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 2 : Definitions.regex) in
     let _3 = (Parsing.peek_val __caml_parser_env 0 : Definitions.regex) in
     Obj.repr(
 # 29 "regexparser.mly"
-                                  ( Or [_1; _3] )
-# 178 "regexparser.ml"
+                                  ( Or (_1, _3) )
+# 177 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     Obj.repr(
 # 30 "regexparser.mly"
                                   ( Epsilon )
-# 184 "regexparser.ml"
+# 183 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     Obj.repr(
 # 31 "regexparser.mly"
                                   ( Emptyset )
-# 190 "regexparser.ml"
+# 189 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     let _2 = (Parsing.peek_val __caml_parser_env 1 : Definitions.regex) in
     Obj.repr(
 # 32 "regexparser.mly"
                                   ( _2 )
-# 197 "regexparser.ml"
+# 196 "regexparser.ml"
                : Definitions.regex))
 ; (fun __caml_parser_env ->
     let _1 = (Parsing.peek_val __caml_parser_env 1 : Definitions.regex) in
     Obj.repr(
 # 33 "regexparser.mly"
                                   ( _1 )
-# 204 "regexparser.ml"
+# 203 "regexparser.ml"
                : Definitions.regex))
 (* Entry regex_main *)
 ; (fun __caml_parser_env -> raise (Parsing.YYexit (Parsing.peek_val __caml_parser_env 0)))

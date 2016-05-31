@@ -4,7 +4,7 @@
 
 ocamlc util.ml
 ocamlc util.cmo definitions.ml
-ocamlc util.cmo definitions.cmo nFAtoDFA.ml
+ocamlc util.cmo definitions.cmo regexlexer.cmo regexparser.cmo nFAtoDFA.ml
 ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.ml
 ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo differenceDFA.ml
 ocamlc util.cmo definitions.cmo nFAtoDFA.cmo minimizeDFA.cmo differenceDfa.cmo rEXPtoDFA.ml

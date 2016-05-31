@@ -64,3 +64,4 @@ let convert_NFA_to_DFA (nfa : 'a NFA.t) : 'a list DFA.t =
           [] states_list in
       DFA.build states_list nfa_alphabet delta_list start_state accept_states (lists_equal comparator)
   | [] -> DFA.build [] [] [] [] [] (lists_equal comparator)
+
